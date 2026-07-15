@@ -1,0 +1,12 @@
+# built binary
+/clipwire
+/dist/
+
+# go
+*.test
+*.prof
+
+# runtime
+*.sock
+*.log
+.DS_Store
