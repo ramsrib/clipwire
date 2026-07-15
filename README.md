@@ -58,13 +58,30 @@ brew install ramsrib/tap/clipwire
 brew services start clipwire       # run the clipboard daemon under launchd
 ```
 
-**Remote** (where your terminal program runs — runs `pull`):
+**Remote — macOS** (where your terminal program runs — only needs `pull`):
 
 ```bash
-brew install ramsrib/tap/clipwire  # macOS
-# ...or on any machine with Go (e.g. Linux hosts):
+brew install ramsrib/tap/clipwire
+```
+
+**Remote — Linux** (`pull` only — the daemon is macOS-only, so a Linux box is always
+the remote, never the clipboard source):
+
+```bash
 go install github.com/ramsrib/clipwire@latest
 ```
+
+`go install` drops the binary in `$(go env GOPATH)/bin` (usually `~/go/bin`), which is
+frequently **not** on your `PATH` — so `clipwire` won't be found until you add it. In
+your shell rc (`~/.profile` for login bash, and/or `~/.zshrc`):
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
+Upgrade later by re-running `go install github.com/ramsrib/clipwire@latest`.
+(Prefer Homebrew? `brew install ramsrib/tap/clipwire` also works on Linux once
+[Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) is installed.)
 
 Then add the reverse-tunnel to the host you SSH into, in `~/.ssh/config`:
 
