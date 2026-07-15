@@ -49,22 +49,42 @@ connect, so nothing on the laptop needs to be internet-reachable.
 
 ## Install
 
-On the **laptop** (macOS):
+### Homebrew (recommended)
+
+**Laptop** (macOS — runs the daemon):
+
+```bash
+brew install ramsrib/tap/clipwire
+brew services start clipwire       # run the clipboard daemon under launchd
+```
+
+**Remote** (where your terminal program runs — runs `pull`):
+
+```bash
+brew install ramsrib/tap/clipwire  # macOS
+# ...or on any machine with Go (e.g. Linux hosts):
+go install github.com/ramsrib/clipwire@latest
+```
+
+Then add the reverse-tunnel to the host you SSH into, in `~/.ssh/config`:
+
+```
+Host <host>
+  RemoteForward /tmp/clipwire.sock ~/.clipwire.sock
+  StreamLocalBindUnlink yes
+```
+
+### From source
 
 ```bash
 git clone https://github.com/ramsrib/clipwire && cd clipwire
-./setup.sh install-daemon          # build + start the launchd daemon
-./setup.sh install-tunnel <host>   # add the RemoteForward line to ~/.ssh/config
-```
-
-On the **remote** (macOS or Linux):
-
-```bash
-./setup.sh push <host>             # (run from laptop) copies the binary to the remote
-# then, on the remote, optionally add the tmux binding from install/clipwire.tmux
+./setup.sh install-daemon          # build + start the launchd daemon (laptop)
+./setup.sh install-tunnel <host>   # add the RemoteForward to ~/.ssh/config
+./setup.sh push <host>             # copy the binary to a remote
 ```
 
 Reconnect your SSH session so the tunnel is established, then paste away.
+(Optionally add the `prefix + P` tmux binding from `install/clipwire.tmux` on the remote.)
 
 ## Usage
 
