@@ -83,7 +83,10 @@ Upgrade later by re-running `go install github.com/ramsrib/clipwire@latest`.
 (Prefer Homebrew? `brew install ramsrib/tap/clipwire` also works on Linux once
 [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) is installed.)
 
-Then wire up the tunnel — it has **two ends**:
+### SSH prerequisites (configure once per host, by hand)
+
+clipwire needs two SSH settings that you add yourself, in the corresponding files —
+one on each end. clipwire does **not** edit your SSH config for you.
 
 **Client** — add the reverse forward for the host you SSH into, in `~/.ssh/config`:
 
