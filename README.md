@@ -113,7 +113,6 @@ forwards.
 ```bash
 git clone https://github.com/ramsrib/clipwire && cd clipwire
 ./setup.sh install-daemon          # build + start the launchd daemon (laptop)
-./setup.sh install-tunnel <host>   # add the RemoteForward to ~/.ssh/config
 ./setup.sh push <host>             # copy the binary to a remote
 ```
 (The server-side `sshd_config` step is manual — see "Server (required)" above.)
