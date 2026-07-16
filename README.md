@@ -121,20 +121,36 @@ git clone https://github.com/ramsrib/clipwire && cd clipwire
 (The server-side `sshd_config` step is manual — see "Server (required)" above.)
 
 Reconnect your SSH session so the tunnel is established, then paste away.
-(Optionally add the `prefix + P` tmux binding from `install/clipwire.tmux` on the remote.)
+(For one-keypress paste, add the `prefix + C-v` tmux binding from `install/clipwire.tmux`
+on the remote — see Usage below.)
 
 ## Usage
 
-```bash
-clipwire serve                 # laptop daemon (usually run by launchd, not by hand)
-clipwire pull                  # remote: save clipboard image, print the file path
-clipwire pull | pbcopy         # e.g. capture the path however you like
-```
+### With tmux — the point (one keypress)
 
-tmux binding (remote `~/.tmux.conf`) — `prefix + P` types the path into the pane:
+Add a binding **on the machine where tmux runs** (the remote / paste target) — copy
+`install/clipwire.tmux`, or drop this into your tmux config:
 
 ```tmux
-bind-key P run-shell 'p=$(clipwire pull 2>/dev/null) && tmux send-keys -t "#{pane_id}" " $p "'
+# prefix + C-v: pull the laptop's clipboard image over the SSH reverse tunnel and
+# type the saved file path into the focused pane (so a CLI agent can read it).
+bind-key C-v run-shell 'p=$(PATH="$HOME/go/bin:/opt/homebrew/bin:$PATH" clipwire pull 2>/dev/null) && tmux send-keys -t "#{pane_id}" " $p "'
+```
+
+Then: copy an image on your laptop → in the remote pane press **`prefix + C-v`** → the
+image path lands in your prompt.
+
+- **Why `C-v`, not `P`?** `P` is commonly already bound (e.g. tmux's `choose-buffer`).
+- **Why the `PATH=` prefix?** tmux `run-shell` uses a non-login shell that may not have
+  Homebrew (`/opt/homebrew/bin`) or `~/go/bin` on `PATH`.
+- A failed pull types nothing into the pane; tmux flashes the exit status —
+  `clipwire pull` exits **3** = no image on the clipboard, **4** = tunnel down.
+
+### By hand
+
+```bash
+clipwire serve     # laptop daemon (normally run by launchd / brew services, not by hand)
+clipwire pull      # remote: save the clipboard image to a temp file, print its path
 ```
 
 ## Security notes
