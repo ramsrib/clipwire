@@ -83,13 +83,26 @@ Upgrade later by re-running `go install github.com/ramsrib/clipwire@latest`.
 (Prefer Homebrew? `brew install ramsrib/tap/clipwire` also works on Linux once
 [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) is installed.)
 
-Then add the reverse-tunnel to the host you SSH into, in `~/.ssh/config`:
+Then wire up the tunnel — it has **two ends**:
+
+**Client** — add the reverse forward for the host you SSH into, in `~/.ssh/config`:
 
 ```
 Host <host>
   RemoteForward /tmp/clipwire.sock ~/.clipwire.sock
-  StreamLocalBindUnlink yes
 ```
+
+**Server (required)** — on that remote host, let sshd reclaim the socket: add
+`StreamLocalBindUnlink yes` to its `sshd_config` (a drop-in under
+`/etc/ssh/sshd_config.d/`, sudo, one-time) — or just run
+`./setup.sh enable-server <host>`.
+
+This server-side line is **not optional**: the reverse-forward socket is created by
+the *remote's* sshd, and many systems (macOS included) leave it orphaned on
+disconnect — without it, the next connection's forward fails to bind with
+`remote port forwarding failed`. Note that `StreamLocalBindUnlink` in the *client*
+`~/.ssh/config` does **not** help here — client-side it only governs `-L` local
+forwards.
 
 ### From source
 
@@ -97,6 +110,7 @@ Host <host>
 git clone https://github.com/ramsrib/clipwire && cd clipwire
 ./setup.sh install-daemon          # build + start the launchd daemon (laptop)
 ./setup.sh install-tunnel <host>   # add the RemoteForward to ~/.ssh/config
+./setup.sh enable-server <host>    # StreamLocalBindUnlink in <host> sshd (sudo)
 ./setup.sh push <host>             # copy the binary to a remote
 ```
 
