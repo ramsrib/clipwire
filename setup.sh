@@ -57,19 +57,8 @@ install_tunnel() {
     echo "appended new 'Host $host' block with RemoteForward to $cfg"
   fi
 
-  echo "NOTE: the remote also needs 'StreamLocalBindUnlink yes' in its sshd_config."
-  echo "      run:  ./setup.sh enable-server $host"
-}
-
-# enable-server: allow the remote's sshd to unlink a stale reverse-forward socket.
-# Required for the tunnel to survive reconnects (the -R socket is bound by the
-# remote's sshd, and many systems leave it orphaned on disconnect). Client-side
-# StreamLocalBindUnlink does NOT cover this — it must be set in the remote sshd_config.
-enable_server() {
-  local host="${1:-}"
-  [ -n "$host" ] || { echo "usage: setup.sh enable-server <host>" >&2; exit 1; }
-  echo "Enabling StreamLocalBindUnlink in $host's sshd_config (sudo on the remote; assumes sshd_config.d support)..."
-  ssh -t "$host" 'echo "StreamLocalBindUnlink yes" | sudo tee /etc/ssh/sshd_config.d/clipwire.conf >/dev/null && echo "done — new connections pick it up (no reload needed)"'
+  echo "NOTE: the remote also needs 'StreamLocalBindUnlink yes' in its sshd_config"
+  echo "      (one-time, run by hand with sudo) — see the README 'Server (required)' step."
 }
 
 push() {
@@ -109,7 +98,6 @@ case "$cmd" in
   build)          build ;;
   install-daemon) install_daemon ;;
   install-tunnel) install_tunnel "$@" ;;
-  enable-server)  enable_server "$@" ;;
   push)           push "$@" ;;
   uninstall)      uninstall ;;
   *)
@@ -119,7 +107,6 @@ usage:
   ./setup.sh build                  build the binary
   ./setup.sh install-daemon         build + install & start the launchd daemon (laptop)
   ./setup.sh install-tunnel <host>  add the RemoteForward line to ~/.ssh/config for <host>
-  ./setup.sh enable-server <host>   set StreamLocalBindUnlink in <host> sshd_config (sudo)
   ./setup.sh push <host>            cross-build and copy the binary to <host>:~/.local/bin
   ./setup.sh uninstall              stop & remove the daemon
 EOF

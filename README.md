@@ -92,10 +92,14 @@ Host <host>
   RemoteForward /tmp/clipwire.sock ~/.clipwire.sock
 ```
 
-**Server (required)** — on that remote host, let sshd reclaim the socket: add
-`StreamLocalBindUnlink yes` to its `sshd_config` (a drop-in under
-`/etc/ssh/sshd_config.d/`, sudo, one-time) — or just run
-`./setup.sh enable-server <host>`.
+**Server (required)** — on that remote host, let sshd reclaim the socket. Add
+`StreamLocalBindUnlink yes` to its `sshd_config` as a one-time drop-in (run by hand — needs sudo):
+
+```bash
+echo "StreamLocalBindUnlink yes" | sudo tee /etc/ssh/sshd_config.d/clipwire.conf
+```
+
+New connections pick it up (on macOS no reload is needed).
 
 This server-side line is **not optional**: the reverse-forward socket is created by
 the *remote's* sshd, and many systems (macOS included) leave it orphaned on
@@ -110,9 +114,9 @@ forwards.
 git clone https://github.com/ramsrib/clipwire && cd clipwire
 ./setup.sh install-daemon          # build + start the launchd daemon (laptop)
 ./setup.sh install-tunnel <host>   # add the RemoteForward to ~/.ssh/config
-./setup.sh enable-server <host>    # StreamLocalBindUnlink in <host> sshd (sudo)
 ./setup.sh push <host>             # copy the binary to a remote
 ```
+(The server-side `sshd_config` step is manual — see "Server (required)" above.)
 
 Reconnect your SSH session so the tunnel is established, then paste away.
 (Optionally add the `prefix + P` tmux binding from `install/clipwire.tmux` on the remote.)
